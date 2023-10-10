@@ -54,7 +54,7 @@
                                 </div>
                                 <div class="col-md-12">
                                     <label for="">Post Description</label>
-                                    <textarea name="description" id="description" class="form-control">@if(isset($post)) {{$post->description}} @endif</textarea>
+                                    <textarea name="description" class="form-control">@if(isset($post)) {{$post->description}} @endif</textarea>
                                 </div>
                             </div>
                             <input type="hidden" name="id" value="@if(isset($post)) {{$post->id}} @endif">
@@ -84,10 +84,10 @@
                                     <tr>
                                         <td>{{$value->title}}</td>
                                         <td><img src="{{asset('post/'.$value->image)}}" alt="" width="100"></td>
-                                        <td>{{$value->description}}</td>
+                                        <td>{!!$value->description!!}</td>
                                         <td>
-                                            <a href="{{route('edit',$value->id)}}" class="btn btn-info">Edit</a> 
-                                            <a href="{{route('destroy',$value->id)}}" onclick="return confirm('Are you sure!! You want to delete')" class="btn btn-danger">Delete</a>
+                                            <a href="{{route('edit',$value->id)}}" class="btn btn-info"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a> 
+                                            <a href="{{route('destroy',$value->id)}}" onclick="return confirm('Are you sure!! You want to delete')" class="btn btn-danger"><i class="fa fa-trash" aria-hidden="true"></i></a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -101,5 +101,4 @@
     </div>
 </div>
 @endsection
-
 

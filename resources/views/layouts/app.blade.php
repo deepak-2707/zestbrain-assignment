@@ -13,12 +13,15 @@
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
-    {{-- <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script> --}}
     <!-- Scripts -->
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="//cdn.ckeditor.com/4.22.1/basic/ckeditor.js"></script>
 
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
@@ -61,6 +64,9 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('home') }}">
+                                        {{ __('Dashboard') }}
+                                    </a>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
@@ -83,15 +89,103 @@
         </main>
     </div>
     <script>
-        //  ClassicEditor
-        // .create( document.querySelector( '#description' ) )
-        // .then( editor => {
-        //         console.log( editor );
-        // } )
-        // .catch( error => {
-        //         console.error( error );
-        // } );
+
+        $(document).ready(function() {
+            CKEDITOR.replace('description');
+        });
+        
         new DataTable('#example');
+
+        function like(post_id){
+            $.ajax({
+                url: '{{route('likePost')}}',
+                type:"post",
+                data: {
+                '_token': '{{csrf_token()}}',
+                'post_id': post_id
+                },
+                success: function(response){
+                    var result = JSON.parse(response);
+                    $('.unlike'+post_id).removeClass('hide');
+                    $('.like'+post_id).addClass('hide');
+                    $('.likeCommentCount'+post_id).html('Like: '+result.likes+', Comments: '+result.comment);
+                }
+            })
+        }
+
+        function unlike(post_id){
+            $.ajax({
+                url: '{{route('unlikePost')}}',
+                type:"post",
+                data: {
+                '_token': '{{csrf_token()}}',
+                'post_id': post_id
+                },
+                success: function(response){
+                    var result = JSON.parse(response);
+                    $('.unlike'+post_id).addClass('hide');
+                    $('.like'+post_id).removeClass('hide');
+                    $('.likeCommentCount'+post_id).html('Like: '+result.likes+', Comments: '+result.comment);
+                }
+            })
+        }
+
+        function showComment(post_id){
+            if($('.comments'+post_id).hasClass('hide')){
+                $('.comments'+post_id).removeClass('hide');
+            }else{
+                $('.comments'+post_id).addClass('hide');
+            }
+        }
+
+        function addComment(post_id, parent_comment_id = 0){
+            if(parent_comment_id == 0){
+                var comment = $('.commmentText'+post_id).val();
+            }else{
+                var comment = $('.commmentText'+post_id+'-'+parent_comment_id).val();
+            }
+            if(comment != ''){
+                $.ajax({
+                    url: '{{route('addComment')}}',
+                    type:"post",
+                    data: {
+                    '_token': '{{csrf_token()}}',
+                    'post_id': post_id,
+                    'comment': comment,
+                    'parent_comment_id': parent_comment_id
+                    },
+                    success: function(response){
+                        var result = JSON.parse(response);
+                        $('.commmentText'+post_id).val('');
+                        $('.likeCommentCount'+post_id).html('Like: '+result.likes+', Comments: '+result.comment);
+                        if(parent_comment_id == 0){
+                            $('.comments'+post_id).removeClass('hide');
+                            $('.comments'+post_id).append(result.html);
+                        }else{
+                            $('.commmentText'+post_id+'-'+parent_comment_id).val('');
+                            $('.subCommentDetails'+parent_comment_id).append(result.subcomment);
+                        }
+                    }
+                })
+            }
+        }
+
+        function getReply(post_id, comment_id){
+            $.ajax({
+                url: '{{route('getReply')}}',
+                type:"post",
+                data: {
+                '_token': '{{csrf_token()}}',
+                'post_id': post_id,
+                'comment_id': comment_id
+                },
+                success: function(response){
+                    $('.subcomment'+comment_id).removeClass('hide')
+                    $('.subCommentDetails'+comment_id).html(response);
+                }
+            })
+        }
+
     </script>
 </body>
 </html>

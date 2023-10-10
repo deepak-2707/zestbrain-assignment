@@ -29,7 +29,6 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-
         if(empty($request->id)){
             $request->validate([
                 'title' => 'required',
